@@ -1,0 +1,543 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{colortbl}
+
+% Colors
+\definecolor{primary}{HTML}{2C3E50}
+\definecolor{accent}{HTML}{E67E22}
+\definecolor{conversiongreen}{HTML}{27AE60}
+\definecolor{dropred}{HTML}{E74C3C}
+\definecolor{warningorange}{HTML}{F39C12}
+\definecolor{lightgray}{HTML}{ECF0F1}
+
+% Hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accent,
+    urlcolor=accent,
+    citecolor=accent
+}
+
+% Headers
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\color{primary}\small Marketing Funnel \& Conversion Analysis}
+\fancyhead[R]{\color{primary}\small Future Interns - DS Task 3}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Section formatting
+\titleformat{\section}
+  {\color{primary}\Large\bfseries}
+  {\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}
+  {\color{accent}\large\bfseries}
+  {\thesubsection}{1em}{}
+
+\begin{document}
+
+% =============================================
+% COVER PAGE
+% =============================================
+\begin{titlepage}
+    \begin{tikzpicture}[remember picture, overlay]
+        \fill[accent] (current page.north west) rectangle (current page.north east);
+        \fill[primary] (current page.north west) rectangle ([yshift=-8pt]current page.north east);
+        \fill[accent, opacity=0.3] (current page.north west) rectangle ([xshift=4pt]current page.south west);
+        \fill[primary] (current page.south west) rectangle ([yshift=4pt]current page.south east);
+    \end{tikzpicture}
+    
+    \vspace*{3cm}
+    
+    \begin{center}
+        {\color{primary}\fontsize{24}{30}\selectfont\bfseries Marketing Funnel}\\[8pt]
+        {\color{primary}\fontsize{24}{30}\selectfont\bfseries\& Conversion Performance Analysis}
+        
+        \vspace{1.5cm}
+        
+        {\color{accent}\Large Statistical Analysis with Business Recommendations}
+        
+        \vspace{2cm}
+        
+        \begin{tcolorbox}[
+            colback=lightgray,
+            colframe=accent,
+            boxrule=0.5pt,
+            arc=4pt,
+            width=0.8\textwidth,
+            center
+        ]
+            \begin{center}
+                {\color{primary}\large\textbf{Future Interns}}\\[4pt]
+                {\color{primary}Data Science \& Analytics - Task 3}\\[4pt]
+                {\color{primary}Marketing Funnel \& Conversion Analysis}
+            \end{center}
+        \end{tcolorbox}
+        
+        \vspace{2.5cm}
+        
+        {\color{primary}\large\textbf{Prepared by:} Thembinkosi Phama}\\[6pt]
+        {\color{primary}\large\textbf{Date:} \today}\\[6pt]
+        {\color{primary}\large\textbf{Repository:} FUTURE\_DS\_03}
+        
+        \vfill
+        
+        \begin{center}
+            \begin{tikzpicture}
+                \draw[accent, line width=1pt] (0,0) -- (4,0);
+                \draw[accent, line width=1pt] (6,0) -- (10,0);
+                \fill[accent] (5,0) circle (4pt);
+                \fill[primary] (5,0) circle (2pt);
+            \end{tikzpicture}
+        \end{center}
+    \end{center}
+\end{titlepage}
+
+% =============================================
+% TABLE OF CONTENTS
+% =============================================
+\newpage
+\renewcommand{\contentsname}{\color{primary}\Large\bfseries Table of Contents}
+\tableofcontents
+\newpage
+
+% =============================================
+% EXECUTIVE SUMMARY
+% =============================================
+\section{Executive Summary}
+
+\begin{tcolorbox}[
+    colback=accent!5,
+    colframe=accent!40,
+    arc=8pt,
+    left=15pt,
+    right=15pt,
+    top=12pt,
+    bottom=12pt
+]
+This report analyzes \textbf{41,188 marketing contacts} from a bank's telemarketing campaigns to identify conversion drivers, funnel drop-off points, and optimization opportunities. Using logistic regression, we quantify the strongest predictors of customer subscription and provide evidence-based recommendations to improve marketing ROI.
+\end{tcolorbox}
+
+\vspace{12pt}
+
+\subsection{Funnel Overview}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{5cm} p{5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+\textbf{Top of Funnel (Contacts)} & \textbf{41,188} \\
+\textbf{Bottom of Funnel (Conversions)} & \textbf{4,640} \\
+\textbf{Conversion Rate} & \textbf{11.27\%} \\
+Drop-off Rate & 88.73\% \\
+\bottomrule
+\end{tabular}
+\caption{Marketing Funnel Overview}
+\end{table}
+
+\begin{tcolorbox}[
+    colback=dropred!5,
+    colframe=dropred!40,
+    arc=8pt,
+    left=12pt,
+    right=12pt
+]
+\textbf{Critical Finding:} 88.73\% of contacts do not convert. The \#1 lever for improvement is \textbf{call duration} — calls over 15 minutes convert at 59.4\% vs 1.28\% for calls under 2 minutes. Other key drivers include contact method (cellular 3$\times$ better than telephone), seasonality (March 8$\times$ better than May), and previous relationship (65\% re-conversion).
+\end{tcolorbox}
+
+% =============================================
+% DATA OVERVIEW
+% =============================================
+\section{Data Overview}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{6cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Attribute} & \textbf{Description} \\
+\midrule
+Dataset Source & Bank Marketing Campaign Dataset \\
+Total Contacts & 41,188 \\
+Features & 21 (demographics, campaign, economic) \\
+Target Variable & Subscription (yes/no) \\
+Time Period & May 2008 - November 2010 \\
+Data Quality & 12 duplicates, unknown values in job/education \\
+\bottomrule
+\end{tabular}
+\caption{Dataset Characteristics}
+\end{table}
+
+\subsection{Business Questions Addressed}
+\begin{enumerate}[label=\color{accent}\textbf{Q\arabic*:}, leftmargin=*]
+    \item Where are contacts dropping off in the funnel?
+    \item Which channels bring high-quality leads?
+    \item How can conversion rates be improved?
+    \item Which segments should be prioritized?
+    \item What is the ROI impact of optimization?
+\end{enumerate}
+
+% =============================================
+% FUNNEL ANALYSIS
+% =============================================
+\section{Funnel Analysis Results}
+
+\subsection{Conversion by Contact Method}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Contact Method} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+Cellular & 26,144 & 3,853 & \textcolor{conversiongreen}{\textbf{14.74\%}} \\
+\rowcolor{dropred!15}
+Telephone & 15,044 & 787 & \textcolor{dropred}{\textbf{5.23\%}} \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Contact Method}
+\end{table}
+
+\begin{tcolorbox}[
+    colback=conversiongreen!5,
+    colframe=conversiongreen!50,
+    title=\textbf{Key Finding: Cellular is 3$\times$ More Effective},
+    fonttitle=\bfseries,
+    arc=6pt
+]
+Switching from telephone to cellular contact improves conversion odds by \textbf{66\%}. The business should prioritize cellular outreach and gradually phase out telephone-only campaigns.
+\end{tcolorbox}
+
+\subsection{Conversion by Job Segment}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Job} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+Student & 875 & 275 & \textcolor{conversiongreen}{\textbf{31.43\%}} \\
+Retired & 1,720 & 434 & \textcolor{conversiongreen}{\textbf{25.23\%}} \\
+Unemployed & 1,014 & 144 & 14.20\% \\
+Admin & 10,422 & 1,352 & 12.97\% \\
+\rowcolor{dropred!15}
+Blue-Collar & 9,254 & 638 & \textcolor{dropred}{\textbf{6.89\%}} \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Job Segment}
+\end{table}
+
+\subsection{Conversion by Age Group}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Age Group} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+60+ & 1,193 & 472 & \textcolor{conversiongreen}{\textbf{39.56\%}} \\
+Under 30 & 5,669 & 922 & \textcolor{conversiongreen}{\textbf{16.26\%}} \\
+50-59 & 6,862 & 697 & 10.16\% \\
+30-39 & 16,938 & 1,715 & 10.13\% \\
+\rowcolor{dropred!15}
+40-49 & 10,526 & 834 & \textcolor{dropred}{\textbf{7.92\%}} \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Age Group}
+\end{table}
+
+\subsection{Conversion by Call Duration}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Call Duration} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+15+ minutes & 1,284 & 762 & \textcolor{conversiongreen}{\textbf{59.35\%}} \\
+10-15 minutes & 2,194 & 928 & \textcolor{conversiongreen}{\textbf{42.30\%}} \\
+5-10 minutes & 7,772 & 1,441 & 18.54\% \\
+2-5 minutes & 17,143 & 1,345 & 7.85\% \\
+\rowcolor{dropred!15}
+0-2 minutes & 12,795 & 164 & \textcolor{dropred}{\textbf{1.28\%}} \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Call Duration}
+\end{table}
+
+\begin{tcolorbox}[
+    colback{dropred!5},
+    colframe{dropred!60},
+    title=\textbf{Critical: Call Duration is the \#1 Predictor},
+    fonttitle=\bfseries,
+    arc=6pt
+]
+Calls over 15 minutes convert at \textbf{46$\times$ the rate} of calls under 2 minutes (59.4\% vs 1.28\%). Every additional minute on the phone dramatically improves conversion probability. Training agents to extend quality conversations represents the highest-ROI intervention.
+\end{tcolorbox}
+
+\subsection{Conversion by Month (Seasonality)}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Month} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+March & 546 & 276 & \textcolor{conversiongreen}{\textbf{50.55\%}} \\
+December & 182 & 89 & \textcolor{conversiongreen}{\textbf{48.90\%}} \\
+September & 570 & 256 & 44.91\% \\
+October & 718 & 315 & 43.87\% \\
+\rowcolor{dropred!15}
+May & 13,769 & 886 & \textcolor{dropred}{\textbf{6.43\%}} \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Month}
+\end{table}
+
+\subsection{Conversion by Previous Outcome}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{2.5cm} p{2.5cm} p{2.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Previous Outcome} & \textbf{Contacts} & \textbf{Conversions} & \textbf{Rate} \\
+\midrule
+\rowcolor{conversiongreen!15}
+Success & 1,373 & 894 & \textcolor{conversiongreen}{\textbf{65.11\%}} \\
+Failure & 4,252 & 605 & 14.23\% \\
+Nonexistent & 35,563 & 3,141 & 8.83\% \\
+\bottomrule
+\end{tabular}
+\caption{Conversion Rate by Previous Campaign Outcome}
+\end{table}
+
+% =============================================
+% STATISTICAL ANALYSIS
+% =============================================
+\section{Statistical Analysis}
+
+\subsection{Logistic Regression Model}
+
+\textbf{Model:} Conversion $\sim$ Contact + Job + Age + Duration + Month + Previous Outcome + Education
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{3cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Pseudo R-squared & 0.371 \\
+Accuracy & 90.60\% \\
+Specificity & 97.36\% \\
+Sensitivity & 37.41\% \\
+AIC & 18,324 \\
+\bottomrule
+\end{tabular}
+\caption{Logistic Regression Model Performance}
+\end{table}
+
+\subsection{Top Conversion Drivers (Odds Ratios)}
+
+\subsubsection{Factors That INCREASE Conversion}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4.5cm} p{2.5cm} p{4.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Factor} & \textbf{Odds Ratio} & \textbf{Interpretation} \\
+\midrule
+\rowcolor{conversiongreen!15}
+Call 15+ minutes & 228$\times$ & Massive conversion boost \\
+Call 10-15 minutes & 97.4$\times$ & Huge positive effect \\
+Call 5-10 minutes & 21.8$\times$ & Strong driver \\
+Previous Success & 10.7$\times$ & Retargeting gold \\
+Month: March & 6.15$\times$ & Seasonal peak \\
+Age 60+ & 3.31$\times$ & Senior advantage \\
+Month: October & 2.90$\times$ & Fall opportunity \\
+\bottomrule
+\end{tabular}
+\caption{Top Conversion Increasers}
+\end{table}
+
+\subsubsection{Factors That DECREASE Conversion}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4.5cm} p{2.5cm} p{4.5cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Factor} & \textbf{Odds Ratio} & \textbf{Interpretation} \\
+\midrule
+\rowcolor{dropred!15}
+Telephone (vs Cellular) & 0.34$\times$ & 66\% lower conversion \\
+Month: July & 0.38$\times$ & 62\% lower conversion \\
+Month: May & 0.43$\times$ & 57\% lower conversion \\
+Month: November & 0.46$\times$ & 54\% lower conversion \\
+Job: Blue-Collar & 0.68$\times$ & 32\% lower conversion \\
+\bottomrule
+\end{tabular}
+\caption{Top Conversion Reducers}
+\end{table}
+
+\begin{tcolorbox}[
+    colback=primary!5,
+    colframe=primary!50,
+    title=\textbf{Statistical Conclusion},
+    fonttitle=\bfseries,
+    arc=6pt
+]
+Call duration is overwhelmingly the strongest predictor of conversion — \textbf{228$\times$ odds ratio} for 15+ minute calls. Combined with cellular contact (3$\times$ better), seasonal timing (March 6$\times$ better), and retargeting previous successes (10.7$\times$ better), the model identifies clear levers for improving the 11.27\% baseline conversion rate.
+\end{tcolorbox}
+
+% =============================================
+% RECOMMENDATIONS
+% =============================================
+\section{Recommendations}
+
+\subsection{Immediate Actions (0--3 Months)}
+
+\begin{enumerate}[label=\color{conversiongreen}\textbf{\theenumi.}, leftmargin=*]
+    \item \textbf{Prioritize cellular contact} — 3$\times$ higher conversion; phase out telephone-only outreach
+    \item \textbf{Train agents on call duration} — Extend conversations past 5 minutes (18.5\%+ conversion threshold)
+    \item \textbf{Retarget previous successes} — 65.1\% re-conversion rate is the highest-ROI segment
+\end{enumerate}
+
+\subsection{Strategic Initiatives (3--12 Months)}
+
+\begin{enumerate}[label=\color{accent}\textbf{\theenumi.}, leftmargin=*]
+    \setcounter{enumi}{3}
+    \item \textbf{Target students and retirees} — 31.4\% and 25.2\% conversion rates respectively
+    \item \textbf{Optimize seasonal campaigns} — Shift volume to March, October, December (40-50\% conversion)
+    \item \textbf{Reduce May/July campaigns} — 6.4\% and 9.1\% conversion rates waste resources
+    \item \textbf{Develop 60+ age segment} — 39.6\% conversion rate; create specialized messaging
+\end{enumerate}
+
+\subsection{Estimated Impact}
+
+\begin{tcolorbox}[
+    colback=conversiongreen!5,
+    colframe=conversiongreen!50,
+    arc=8pt,
+    left=15pt,
+    right=15pt
+]
+Improving the baseline conversion rate from \textbf{11.27\% to 15\%} (a 33\% improvement) through these interventions would generate approximately \textbf{1,535 additional conversions} from the same contact volume. At an estimated customer lifetime value of \$500, this represents \textbf{\$767,500 in additional revenue}.
+\end{tcolorbox}
+
+% =============================================
+% METHODOLOGY
+% =============================================
+\section{Methodology}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{4cm} p{7cm}}
+\toprule
+\rowcolor{primary!10}
+\textbf{Technique} & \textbf{Purpose} \\
+\midrule
+Data Cleaning & Handle missing values, create derived features \\
+Descriptive Analysis & Conversion rates by segment, KPI calculation \\
+Funnel Analysis & Identify drop-off points across segments \\
+Logistic Regression & Quantify conversion drivers (odds ratios) \\
+Confusion Matrix & Evaluate model performance \\
+Seasonality Analysis & Identify optimal campaign timing \\
+\bottomrule
+\end{tabular}
+\caption{Analytical Methodology}
+\end{table}
+
+\textbf{Tools Used:} R Statistical Computing Environment, tidyverse, broom, ggplot2
+
+% =============================================
+% CONCLUSION
+% =============================================
+\section{Conclusion}
+
+\begin{tcolorbox}[
+    colback=primary!5,
+    colframe=primary!50,
+    arc=8pt,
+    left=15pt,
+    right=15pt,
+    top=15pt,
+    bottom=15pt
+]
+This analysis identified an \textbf{11.27\% baseline conversion rate} from 41,188 marketing contacts. Statistical modeling revealed clear, actionable levers for improvement.
+
+\vspace{8pt}
+
+\textbf{The Conversion Formula:} The highest-probability contact uses \textbf{cellular phone}, has a \textbf{previous successful relationship}, is called for \textbf{15+ minutes}, during \textbf{March or October}, and is a \textbf{student or retiree aged 60+}. This profile converts at rates exceeding 50\%.
+
+\vspace{8pt}
+
+\textbf{Key Takeaways:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Call duration} is the \#1 predictor — 228$\times$ odds ratio for 15+ minute calls
+    \item \textbf{Cellular crushes telephone} — 3$\times$ better conversion (14.7\% vs 5.2\%)
+    \item \textbf{Retargeting works} — Previous successes convert at 65.1\%
+    \item \textbf{Timing matters} — March (50.6\%) is 8$\times$ better than May (6.4\%)
+    \item \textbf{Students and seniors} are gold — 31.4\% and 39.6\% conversion respectively
+\end{itemize}
+
+\vspace{8pt}
+
+The recommendations provide a clear roadmap for improving marketing ROI. By focusing on the right contact method, extending call duration, targeting high-conversion segments, and optimizing seasonal timing, the business can realistically improve conversion rates by 33\%+.
+
+\vspace{8pt}
+
+\begin{center}
+\textbf{Estimated Revenue Impact: +\$767,500 from conversion optimization}
+\end{center}
+\end{tcolorbox}
+
+\vspace{1cm}
+
+\begin{center}
+\begin{tikzpicture}
+    \fill[accent] (0,0) rectangle (15,0.3);
+    \fill[primary] (0,0) rectangle (15,0.1);
+\end{tikzpicture}
+
+\vspace{6pt}
+
+{\color{primary}\small Report prepared for \textbf{Future Interns - Data Science \& Analytics Task 3}}\\[4pt]
+{\color{primary}\small Analysis conducted using R Statistical Computing Environment}\\[4pt]
+{\color{primary}\small \today}
+\end{center}
+
+\end{document}
